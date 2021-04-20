@@ -20,11 +20,22 @@
     },
     methods: {
       upload () {
+        console.log(this.record);
+
         if (!this.record.url) {
           return
         }
 
         this.$eventBus.$emit('start-upload')
+        
+        if (this.record.method && this.record.method.toLowerCase() === 'get') {
+          this.$http.get(this.uploadUrl, { headers: headers }).then(resp => {
+            this.$eventBus.$emit('end-upload', { status: 'success', response: resp })
+          }).catch(error => {
+            this.$eventBus.$emit('end-upload', { status: 'fail', response: error })
+          });
+          return;
+        }
 
         const data = new FormData()
         data.append('audio', this.record.blob, `${this.filename}.mp3`)
